@@ -1,0 +1,39 @@
+{
+  "manifest_version": 3,
+  "name": "AI Cheater Logger Lite",
+  "version": "1.0",
+  "description": "Logs user behavior during coding assessments to detect potential AI-assisted cheating.",
+  "permissions": ["storage", "scripting"],
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "content_scripts": [{
+    "matches": [
+    "*://*.leetcode.com/*",
+    "*://*.hackerrank.com/*",
+    "*://*.codesignal.com/*",
+    "*://*.codility.com/*",
+    "*://*.hackerearth.com/*"
+
+    ],
+    "js": ["content.js"],
+    "run_at": "document_idle"
+  }],
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+    "16": "./Images/Logo3.png",
+    "48": "./Images/Logo2.png",
+    "128": "./Images/Logo1.png"
+      
+    }
+  },
+
+  "icons": {
+    "16": "./Images/Logo3.png",
+    "48": "./Images/Logo2.png",
+    "128": "./Images/Logo1.png"
+  }
+}
