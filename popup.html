@@ -3,43 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI-Detection Logs</title>
+    <title> Code Tracker Logs</title>
 </head>
 <body>
-    <h3>Logs</h3>
-    <button id="showsLogs">Show Logs</button>
-    <button id="clearData"> Clear Data</button>
-    <button id="exportLogs">Export to Excel</button>
+    <h3>Code Tracker Assessment</h3>
+    <div class="tabs">
+    <button class="tabs" id="showDashboard">Dashboard</button>
+    <button class="tabs" id="showLogs">Logs</button>
+    <button class="tabs" id="clearData"> Clear</button>
+    <button class="tabs" id="exportLogs">Export</button>
+    </div>
+    <div id="dashboard">
+      <div class="start-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total Events</div>
+          <div class="stat-value" id="totalEvents"> 0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Session Time</div>
+          <div class="stat-value" id="sessionTime">0m</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Tab Switches</div>
+          <div class="stat-value" id="tabSwitches">0</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-label">Paste Events</div>
+          <div class="stat-value" id="pasteEvents">0</div>
+        </div>
+
+        <div class="alerts" id="alertsContainer"></div>
+
+        <div id="chartContainer">
+          <div class="chart-title">Event Distribution</div>
+          <div class="bar-chart" id="eventChart"></div>
+        </div>
+      </div>
+    </div>
+    <!-- Filters -->
+    <div class="filters" style="display:none;" id="filterSection">
+      <select class="filter-select" id="eventTypeFilter">
+        <option value="all">All Events</option>
+      </select>
+
+      <select class="filter-select" id="problemFilter">
+        <option value="all">All Problems</option>
+      </select>
+    </div>
+
     <ul id="logList"></ul>
     <script src="popup.js"></script>
+
 </body>
 
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
 
 <style>
+  *{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
   body {
     font-family: 'Press Start 2P', cursive;
     font-size: 10px;
     padding: 10px;
+    text-align: center;
     line-height: 1.5;
     background: #111;
     color: #0f0;
+    width: 450px;
+    max-height: 600px;
+    overflow-y: auto;
   }
+
+  h3{
+    font-size: 15px;
+  }
+
+  .tabs{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+  }
+
   button {
+    font-size: 15px;
     background: #222;
     color: #0f0;
     border: 1px solid #0f0;
     padding: 5px;
     margin: 3px 0;
+    width: 7rem;
     cursor: pointer;
     transition: 0.3s ease;
+    flex: 1;
+    min-width: 100px;
   }
   
-  button:hover{
+  button:hover:not(:disabled){
     background: #0f0;
     color: #222;
   }
-  
+  button:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  /* Dashboard Section */
+  #dashboard {
+      background: #1a1a1a;
+      border: 2px solid #0f0;
+      padding: 12px;
+      margin-bottom: 15px;
+      display: none;
+  }
+
+  #dashboard.visible {
+      display: block;
+  }
+
+  .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 15px;
+  }
+
+  .stat-card {
+      background: #222;
+      border: 1px solid #0f0;
+      padding: 10px;
+      text-align: center;
+  }
+
+  .stat-label {
+      font-size: 7px;
+      color: #888;
+      margin-bottom: 5px;
+  }
+
+  .stat-value {
+      font-size: 14px;
+      color: #0ff;
+  }
+
+  /* Alerts Section */
+  .alerts {
+      margin-bottom: 15px;
+  }
+
+  .alert {
+      padding: 8px;
+      margin-bottom: 8px;
+      border-left: 3px solid;
+      background: #1a1a1a;
+      font-size: 8px;
+  }
+
+  .alert.warning {
+      border-color: #ff0;
+      color: #ff0;
+  }
+
+  .alert.danger {
+      border-color: #f00;
+      color: #f00;
+  }
+
+  .alert.info {
+      border-color: #0ff;
+      color: #0ff;
+  }
+
+  /* Chart Container */
+  #chartContainer {
+      background: #1a1a1a;
+      border: 1px solid #0f0;
+      padding: 10px;
+      margin-bottom: 15px;
+      display: none;
+  }
+
+  #chartContainer.visible {
+      display: block;
+  }
+
+  .chart-title {
+      font-size: 9px;
+      color: #0ff;
+      margin-bottom: 10px;
+      text-align: center;
+  }
+
+  .bar-chart {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+  }
+
+  .bar-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+  }
+
+  .bar-label {
+      font-size: 7px;
+      min-width: 80px;
+      color: #888;
+  }
+
+  .bar-fill {
+      height: 15px;
+      background: #0f0;
+      border: 1px solid #0f0;
+      transition: width 0.3s ease;
+  }
+
+  .bar-value {
+      font-size: 7px;
+      color: #0ff;
+      min-width: 30px;
+  }
+
+  /* Filters */
+  .filters {
+      display: flex;
+      gap: 5px;
+      margin-bottom: 15px;
+      flex-wrap: wrap;
+  }
+
+  .filter-select {
+      background: #222;
+      color: #0f0;
+      border: 1px solid #0f0;
+      padding: 5px;
+      font-family: 'Press Start 2P', cursive;
+      font-size: 7px;
+      flex: 1;
+  }
+  /* Log List */
   #logList{
     font-family: 'Press Start 2P';
     font-size: 10px;
@@ -48,11 +256,48 @@
     opacity: 0;
     overflow: hidden;
     transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    list-style: none;
   }
- #logList.showing {
-  max-height: 500px;
-  opacity: 1;
-}
+  #logList.showing {
+    max-height: 500px;
+    opacity: 1;
+    overflow-y: auto;
+  }
+  #logList li{
+   padding: 6px;
+   margin-bottom: 4px;
+   background: #1a1a1a;
+   border-left: 2px solid #0f0;
+   font-size: 7px;
+  }
+
+  #logList li.warning {
+    border-left-color: #ff0;
+    color: #ff0;
+  }
+
+  #logList li.danger {
+    border-left-color: #f00;
+    color: #f00;
+  }
+  
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #1a1a1a;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #0f0;
+    border: 1px solid #111;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #0ff;
+  }
 </style>
 <script src="xlsx.full.min.js"></script>
 </html>
